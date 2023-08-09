@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using tarefas_00.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using tarefas_00.Respository.Interfaces;
 
 namespace tarefas_00.Controllers
 {
@@ -9,36 +8,46 @@ namespace tarefas_00.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        [HttpGet]
-        public ActionResult<List<UserModel>> FindUsers()
+        private readonly IUserRepository _userRepository;
+         public UserController(IUserRepository userRepository)
         {
-            Console.WriteLine("Hello World!");
-            return Ok("teste");
+            _userRepository = userRepository;
         }
 
         [HttpGet]
-        [Route("find_by_id")]
-        public ActionResult<UserModel> GetUserById(int id)
+        public async Task<ActionResult<List<UserModel>>> FindUsers()
         {
-            return Ok("teste");
+            List<UserModel> users = await _userRepository.FindUser();
+            return Ok(users);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<UserModel>> GetUserById(int id)
+        {
+            UserModel user = await _userRepository.FindById(id);
+            return Ok(user);
         }
 
         [HttpPost]
-        public ActionResult<UserModel> CreateUser(UserModel user) 
+        public async Task<ActionResult<UserModel>> AddUser([FromBody] UserModel userModel) 
         {
-            return Ok();
+            UserModel user = await _userRepository.createUser(userModel);
+           return Ok(user);
         }
 
-        [HttpPut]
-        public ActionResult<UserModel> UpdateUser(UserModel user) 
+        [HttpPut("{id}")]
+        public async Task<ActionResult<UserModel>> UpdateUser([FromBody] UserModel userModel, int id) 
         {
-            return Ok();
+            userModel.Id = id;
+            UserModel user = await _userRepository.UpdateUser(userModel, id);
+            return Ok(user);
         }
 
         [HttpDelete]
-        public ActionResult<bool> DeleteUser(int ind)
+        public async Task<ActionResult<bool>> DeleteUser(int id)
         {
-            return Ok();
+            bool deletedUser = await _userRepository.DeleteUser(id);
+            return Ok(deletedUser);
         }
     }
 }
