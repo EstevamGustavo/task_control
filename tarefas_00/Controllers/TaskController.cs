@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using tarefas_00.Models;
+using tarefas_00.Respository.Interfaces;
 
 namespace tarefas_00.Controllers
 {
@@ -7,35 +8,47 @@ namespace tarefas_00.Controllers
     [ApiController]
     public class TaskController : Controller
     {
-        [HttpGet]
-        public ActionResult<TaskModel> GetFindTasks()
+        private readonly ITaskRepository _taskRepository;
+        public TaskController(ITaskRepository taskRepository)
         {
-            return View();
+            _taskRepository = taskRepository;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<List<TaskModel>>> GetFindTasks()
+        {
+            List<TaskModel> tasks = await _taskRepository.FindTasks();
+            return Ok(tasks);
         }
 
         [HttpGet]
         [Route("find_by_id")]
-        public ActionResult<TaskModel> GetFindTaskById(int id) 
+        public async Task<ActionResult<TaskModel>> GetFindTaskById(int id) 
         {
+            TaskModel task = await _taskRepository.findTaskById(id);
             return Ok();
         }
 
         [HttpPost]
-        public ActionResult<TaskModel> PostCreateTask(TaskModel task) 
+        public async Task<ActionResult<TaskModel>> PostCreateTask([FromBody] TaskModel taskMpdel) 
         {
+            TaskModel task = await _taskRepository.createTask(taskMpdel);
             return Ok();        
         }
 
         [HttpPut]
-        public ActionResult<TaskModel> PutUpdateTask(TaskModel task) 
+        public async Task<ActionResult<TaskModel>> PutUpdateTask(TaskModel taskModel, int id) 
         {
-            return Ok();
+            taskModel.Id = id;
+            TaskModel task = await _taskRepository.updateTask(taskModel, id);
+            return Ok(task);
         }
 
         [HttpDelete]
-        public ActionResult<bool> DeleteTask(int id) 
+        public async Task<ActionResult<bool>> DeleteTask(int id) 
         {
-            return Ok();
+            bool deletedTask = await _taskRepository.deleteTask(id);
+            return Ok(deletedTask);
         }
     }
 }

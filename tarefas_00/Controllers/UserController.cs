@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.Identity.Web;
+using Microsoft.AspNetCore.Mvc;
 using tarefas_00.Models;
 using tarefas_00.Respository.Interfaces;
 
 namespace tarefas_00.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -34,8 +37,8 @@ namespace tarefas_00.Controllers
             UserModel user = await _userRepository.createUser(userModel);
            return Ok(user);
         }
-
-        [HttpPut("{id}")]
+        
+        [HttpPut]
         public async Task<ActionResult<UserModel>> UpdateUser([FromBody] UserModel userModel, int id) 
         {
             userModel.Id = id;

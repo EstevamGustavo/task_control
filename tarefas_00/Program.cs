@@ -1,5 +1,7 @@
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Web;
+using Microsoft.IdentityModel.Logging;
 using tarefas_00.Data;
 using tarefas_00.Respository;
 using tarefas_00.Respository.Interfaces;
@@ -12,9 +14,11 @@ namespace tarefas_00
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
             builder.Services.AddControllers();
+
+            builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration);
+            builder.Services.AddAuthentication();
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -33,12 +37,14 @@ namespace tarefas_00
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+                IdentityModelEventSource.ShowPII = true;
             }
 
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+            app.UseAuthentication();
 
+            app.UseAuthorization();
 
             app.MapControllers();
 
